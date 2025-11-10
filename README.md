@@ -1,4 +1,4 @@
-# **Midori: Autonomous Plant System Prototype**
+# **Midori: Autonomous Plant System**
 
 Midori began in **2023** as a small proof-of-concept exploring how low-power microcontrollers could collaborate with cloud-based intelligence to automate plant care.
 The idea was simple: build a plant system that **senses, adapts, and responds** — without human intervention. What started as an experiment in embedded programming evolved into a working prototype connecting firmware, IoT cloud control, and adaptive automation.
