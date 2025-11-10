@@ -1,28 +1,31 @@
-# **Midori: Intelligent Plant System Prototype**
+# **Midori: Autonomous Plant System Prototype**
 
-Midori is a developer-led **smart plant system** that combines **embedded control**, **IoT integration**, and **adaptive automation** to maintain optimal plant health.
-Originally started in 2023 as a proof of concept under a small development team, the project explores scalable methods for connecting low-power embedded firmware with cloud-based intelligence for autonomous plant care.
+Midori began in **2023** as a small proof-of-concept exploring how low-power microcontrollers could collaborate with cloud-based intelligence to automate plant care.
+The idea was simple: build a plant system that **senses, adapts, and responds** — without human intervention. What started as an experiment in embedded programming evolved into a working prototype connecting firmware, IoT cloud control, and adaptive automation.
 
 ---
 
 ## **Overview**
 
-Midori prototypes a **closed-loop plant maintenance system** integrating sensors, actuators, and cloud logic to automate soil moisture, lighting, and irrigation.
-The architecture uses **Arduino IoT Cloud** as the synchronization layer and a **Node.js controller** for high-level coordination, focusing on modularity and reproducibility rather than commercialization.
+Midori implements a **closed-loop control system** that monitors soil moisture, light, and temperature, and reacts automatically through lighting and irrigation.
+It uses **Arduino IoT Cloud** for synchronization and a **Node.js controller** for high-level logic and data publishing.
+The project focuses on **firmware reliability, modularity, and feedback-driven automation**, not on product commercialization.
 
-The project currently maintains multiple working prototypes, each testing different aspects of the design:
+The system currently exists across several experimental builds, each exploring a specific subsystem:
 
-* **Kōjō** – Core control system and cloud interface.
-* **Midori Watering Module** – Compact automated watering unit with feedback control.
-* **Midori 1** – Primary prototype combining moisture sensing, adaptive lighting, and automated irrigation.
-* **Midori Pro (in progress)** – Multi-planter interconnect design for distributed coordination experiments.
-* **Soilpod** – Experimental hydroponic substrate engineered for moisture regulation and capillary diffusion.
+* **Kōjō** – Cloud control and firmware interface.
+* **Midori Watering Module** – Automated irrigation unit with moisture feedback.
+* **Midori 1** – Combined sensing, lighting, and watering prototype.
+* **Midori Pro (in progress)** – Multi-planter coordination over shared communication lines.
+* **Soilpod** – Custom hydroponic medium engineered for stable moisture and nutrient flow.
 
-This repository documents the **Midori 1** prototype.
+This repository documents **Midori 1**, the main working prototype.
 
 ---
 
 ## **System Architecture**
+
+Built for modular experimentation.
 
 ```
 Cloud Layer
@@ -34,48 +37,54 @@ Cloud Layer
     └── Synchronizes over MQTT with device firmware
         ↓
 Firmware Layer (ESP32 / Arduino)
-│   ├── moistdetect – soil moisture sensing
-│   ├── Luminator – adaptive lighting control (PWM + feedback)
-│   ├── directconnect – modular interface for power/water/data
-│   └── Modularity system – inter-planter communication bus
+│   ├── moistdetect – soil moisture sensing module
+│   ├── Luminator – adaptive lighting driver using PWM and light feedback
+│   ├── directconnect – modular bus for power, water, and data between planters
+│   └── Modularity system – communication interface for connected modules
         ↓
 Hardware Layer
     ├── Pumps / valves – water regulation
-    ├── LEDs / drivers – lighting control
-    ├── Sensors – moisture, light, temperature
-    └── Reservoir or tap-based supply
+    ├── LEDs / drivers – lighting system managed by Luminator
+    ├── Sensors – moisture, ambient light, temperature
+    └── Reservoir or tap-based water source
 ```
 
 ---
 
 ## **Core Technologies**
 
-* **Firmware:** Arduino C++ (ESP32 / Uno compatible)
+Built on open, accessible hardware and cloud APIs.
+
+* **Firmware:** Arduino C++ (ESP32 / Uno)
 * **Cloud Integration:** Arduino IoT Cloud SDK (`CloudDimmedLight`, `CloudSchedule`)
-* **Controller:** Node.js with [`arduino-iot-js`](https://www.npmjs.com/package/arduino-iot-js)
+* **Controller:** Node.js + [`arduino-iot-js`](https://www.npmjs.com/package/arduino-iot-js)
 * **Sensors:** Moisture, ambient light, temperature
 * **Actuators:** LED driver, micro-pump, solenoid valve
 * **Connectivity:** Wi-Fi (MQTT over TLS)
-* **Power:** Battery or direct DC input
+* **Power:** Battery / DC input
 
 ---
 
-## **Cloud Variable Mapping**
+## **Cloud Variables**
 
-| Variable         | Function                       | Firmware Type      | Example JSON                                                    |
+Midori synchronizes its state through structured cloud properties.
+
+| Variable         | Function                       | Type               | Example JSON                                                    |
 | ---------------- | ------------------------------ | ------------------ | --------------------------------------------------------------- |
 | `dimmedLight`    | Lighting brightness and on/off | `CloudDimmedLight` | `{"bri":"19","swi":"true"}`                                     |
 | `cloudScheduler` | Watering and lighting schedule | `CloudSchedule`    | `{"frm":1719533715,"len":300,"to":1719601200,"msk":3288334337}` |
 
 ---
 
-## **System Workflow**
+## **Workflow**
+
+A focus on **feedback and synchronization**.
 
 1. **Cloud Synchronization**
-   The Node.js controller publishes updated lighting and watering parameters to Arduino IoT Cloud.
+   The Node.js controller publishes new lighting and watering parameters to the Arduino IoT Cloud.
 
 2. **Firmware Reaction**
-   The ESP32 firmware receives MQTT updates and executes callbacks:
+   The ESP32 firmware receives MQTT updates and applies them via firmware callbacks:
 
    ```cpp
    void onDimmedLightChange() {
@@ -84,19 +93,19 @@ Hardware Layer
    }
 
    void onScheduleUpdate() {
-       // Trigger pump according to schedule parameters
+       // Activate pump based on schedule parameters
    }
    ```
 
 3. **Hardware Response**
-   Moisture and light readings drive real-time adaptation of lighting and irrigation cycles.
+   Sensors continuously provide feedback on environment variables, which the firmware uses to fine-tune lighting and watering.
 
 4. **Feedback Loop**
-   The Arduino IoT Cloud dashboard provides remote telemetry and manual override.
+   The cloud dashboard displays telemetry and allows manual overrides for testing and calibration.
 
 ---
 
-## **Node.js Control Example**
+## **Node.js Controller Example**
 
 ```javascript
 import { ArduinoIoTCloud } from "arduino-iot-js";
@@ -121,21 +130,25 @@ const cloudScheduler = { frm: 1719533715, len: 300, to: 1719601200, msk: 3288334
 
 ---
 
-## **Current Objectives**
+## **Current Goals**
 
-* Validate **firmware–cloud synchronization** and closed-loop reliability.
-* Test **multi-planter coordination** via modular interconnects.
-* Refine **adaptive lighting control** using sensor feedback.
-* Optimize **power and communication efficiency** across prototypes.
+Building toward reliability and scalability.
+
+* Validate **firmware–cloud synchronization** under real conditions.
+* Test **multi-planter communication** via DirectConnect.
+* Refine **adaptive lighting control** using the Luminator module.
+* Optimize **power and communication efficiency** across modules.
 
 ---
 
 ## **Next Steps**
 
-* Extend **DirectConnect** for multi-node data/power sharing.
-* Prototype **Midori Pro** bus network for distributed control.
-* Explore **AI-driven irrigation prediction** using environmental data.
-* Experiment with **nutrient control modules** and hydroponic feedback.
+Where Midori experiments next.
+
+* Extend **DirectConnect** for shared data and power buses.
+* Prototype **Midori Pro** for distributed coordination.
+* Add **AI-assisted irrigation** using sensor-derived datasets.
+* Explore **nutrient control feedback** for hydroponic variants.
 
 ---
 
